@@ -7,6 +7,9 @@
     GEMINI_MODEL +
     ":generateContent";
 
+  var APP_VERSION = "1.1.0";
+  var APP_UPDATED = "2026-07-01";
+
   var MEAL_LABELS = ["朝ごはん", "お昼ごはん", "晩ごはん"];
   var SUN_POSITIONS = [
     { x: 40, y: 54 },
@@ -46,6 +49,7 @@
     els.modalPickBtn = $("modal-pick-btn");
     els.settingsModal = $("settings-modal");
     els.apiKeyInput = $("api-key-input");
+    els.versionText = $("version-text");
 
     $("today-date").textContent = formatToday();
 
@@ -78,6 +82,8 @@
     });
 
     els.apiKeyInput.value = localStorage.getItem("kondate_gemini_key") || "";
+    els.versionText.textContent =
+      "きょうのごはん v" + APP_VERSION + "（更新日: " + APP_UPDATED + "）";
 
     renderHistory();
 

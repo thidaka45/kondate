@@ -298,6 +298,12 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
 .modal-body ul, .modal-body ol { margin: 0 0 16px; padding-left: 20px; }
 .modal-body li { font-size: 14px; line-height: 1.9; color: var(--text-primary); }
 .hint-text { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.version-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 20px;
+  text-align: center;
+}
 .modal-footer { padding: 12px 20px 20px; }
 
 @media (prefers-color-scheme: dark) {

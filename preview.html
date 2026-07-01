@@ -309,6 +309,12 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
 .modal-body ul, .modal-body ol { margin: 0 0 16px; padding-left: 20px; }
 .modal-body li { font-size: 14px; line-height: 1.9; color: var(--text-primary); }
 .hint-text { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.version-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 20px;
+  text-align: center;
+}
 .modal-footer { padding: 12px 20px 20px; }
 
 @media (prefers-color-scheme: dark) {
@@ -447,6 +453,7 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
       <p class="label">Gemini API キー</p>
       <input type="password" id="api-key-input" placeholder="APIキーを入力">
       <p class="hint-text">キーはこの端末内にのみ保存され、外部には送信されません。</p>
+      <p class="version-text" id="version-text"></p>
     </div>
     <div class="modal-footer">
       <button class="primary-btn" id="settings-save-btn">保存する</button>
@@ -459,10 +466,13 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
   "use strict";
 
   var GEMINI_MODEL = "gemini-2.5-flash";
-  var GEMINI_URL_BASE =
+  var GEMINI_URL =
     "https://generativelanguage.googleapis.com/v1beta/models/" +
     GEMINI_MODEL +
-    ":generateContent?key=";
+    ":generateContent";
+
+  var APP_VERSION = "1.1.0";
+  var APP_UPDATED = "2026-07-01";
 
   var MEAL_LABELS = ["朝ごはん", "お昼ごはん", "晩ごはん"];
   var SUN_POSITIONS = [
@@ -503,6 +513,7 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
     els.modalPickBtn = $("modal-pick-btn");
     els.settingsModal = $("settings-modal");
     els.apiKeyInput = $("api-key-input");
+    els.versionText = $("version-text");
 
     $("today-date").textContent = formatToday();
 
@@ -535,6 +546,8 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
     });
 
     els.apiKeyInput.value = localStorage.getItem("kondate_gemini_key") || "";
+    els.versionText.textContent =
+      "きょうのごはん v" + APP_VERSION + "（更新日: " + APP_UPDATED + "）";
 
     renderHistory();
 
@@ -637,9 +650,12 @@ input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
 
     var prompt = buildPrompt();
 
-    fetch(GEMINI_URL_BASE + encodeURIComponent(apiKey), {
+    fetch(GEMINI_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { responseMimeType: "application/json" }
