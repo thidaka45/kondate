@@ -2,10 +2,10 @@
   "use strict";
 
   var GEMINI_MODEL = "gemini-2.5-flash";
-  var GEMINI_URL_BASE =
+  var GEMINI_URL =
     "https://generativelanguage.googleapis.com/v1beta/models/" +
     GEMINI_MODEL +
-    ":generateContent?key=";
+    ":generateContent";
 
   var MEAL_LABELS = ["朝ごはん", "お昼ごはん", "晩ごはん"];
   var SUN_POSITIONS = [
@@ -180,9 +180,12 @@
 
     var prompt = buildPrompt();
 
-    fetch(GEMINI_URL_BASE + encodeURIComponent(apiKey), {
+    fetch(GEMINI_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { responseMimeType: "application/json" }
