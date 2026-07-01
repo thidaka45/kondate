@@ -7,12 +7,6 @@
     GEMINI_MODEL +
     ":generateContent?key=";
 
-  var GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image";
-  var GEMINI_IMAGE_URL_BASE =
-    "https://generativelanguage.googleapis.com/v1beta/models/" +
-    GEMINI_IMAGE_MODEL +
-    ":generateContent?key=";
-
   var MEAL_LABELS = ["朝ごはん", "お昼ごはん", "晩ごはん"];
   var SUN_POSITIONS = [
     { x: 40, y: 54 },
@@ -46,8 +40,6 @@
     els.historyList = $("history-list");
     els.recipeModal = $("recipe-modal");
     els.modalTitle = $("modal-title");
-    els.modalImageWrap = $("modal-image-wrap");
-    els.modalImage = $("modal-image");
     els.modalLinkRow = $("modal-link-row");
     els.modalIngredients = $("modal-ingredients");
     els.modalSteps = $("modal-steps");
@@ -248,68 +240,6 @@
       "https://cookpad.com/search/" + encodeURIComponent(recipeName || "");
   }
 
-  function applyOrGenerateImage(recipe, imgEl, wrapEl) {
-    if (recipe._imageDataUrl) {
-      imgEl.src = recipe._imageDataUrl;
-      imgEl.hidden = false;
-      wrapEl.classList.remove("image-loading");
-      wrapEl.classList.add("image-loaded");
-      return;
-    }
-    generateDishImage(recipe, imgEl, wrapEl);
-  }
-
-  function generateDishImage(recipe, imgEl, wrapEl) {
-    var apiKey = getApiKey();
-    if (!apiKey) return;
-
-    var prompt =
-      "「" + recipe.name + "」という家庭料理の写真を生成してください。" +
-      "自然光の食卓の上に盛り付けられた状態、真上または斜め上からのアングル、" +
-      "実際の家庭料理らしい写実的な写真風のスタイルでお願いします。文字やロゴは入れないでください。";
-
-    fetch(GEMINI_IMAGE_URL_BASE + encodeURIComponent(apiKey), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
-      })
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error("image api error " + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        var parts =
-          (data.candidates &&
-            data.candidates[0] &&
-            data.candidates[0].content &&
-            data.candidates[0].content.parts) ||
-          [];
-        var imagePart = null;
-        for (var i = 0; i < parts.length; i++) {
-          if (parts[i].inlineData || parts[i].inline_data) {
-            imagePart = parts[i].inlineData || parts[i].inline_data;
-            break;
-          }
-        }
-        if (!imagePart) throw new Error("no image in response");
-        var mime = imagePart.mimeType || imagePart.mime_type || "image/png";
-        var b64 = imagePart.data;
-        var dataUrl = "data:" + mime + ";base64," + b64;
-        recipe._imageDataUrl = dataUrl;
-        imgEl.src = dataUrl;
-        imgEl.hidden = false;
-        wrapEl.classList.remove("image-loading");
-        wrapEl.classList.add("image-loaded");
-      })
-      .catch(function () {
-        wrapEl.classList.remove("image-loading");
-        wrapEl.classList.add("image-failed");
-      });
-  }
-
   function setLoading(isLoading) {
     els.suggestBtn.disabled = isLoading;
     els.suggestBtnText.textContent = isLoading
@@ -335,10 +265,6 @@
         : "";
 
       card.innerHTML =
-        '<div class="recipe-image-wrap image-loading">' +
-        '<span class="image-placeholder-icon">🍽</span>' +
-        '<img class="recipe-image" alt="" hidden>' +
-        "</div>" +
         '<div class="recipe-card-head">' +
         '<p class="recipe-name"></p>' +
         '<span class="time-badge"></span>' +
@@ -360,12 +286,6 @@
       card.querySelector(".recipe-ingredients").textContent = ingredientsText;
       setLinkChips(card, recipe.name);
 
-      var imgWrap = card.querySelector(".recipe-image-wrap");
-      var imgEl = card.querySelector(".recipe-image");
-      if (recipe.name) {
-        applyOrGenerateImage(recipe, imgEl, imgWrap);
-      }
-
       card
         .querySelector(".secondary-btn")
         .addEventListener("click", function () {
@@ -384,16 +304,6 @@
   function openRecipeModal(recipe) {
     els.modalTitle.textContent = recipe.name || "";
     setLinkChips(els.modalLinkRow, recipe.name);
-
-    els.modalImage.hidden = true;
-    els.modalImageWrap.classList.remove(
-      "image-loaded",
-      "image-failed"
-    );
-    els.modalImageWrap.classList.add("image-loading");
-    if (recipe.name) {
-      applyOrGenerateImage(recipe, els.modalImage, els.modalImageWrap);
-    }
 
     els.modalIngredients.innerHTML = "";
     (recipe.ingredients || []).forEach(function (item) {
