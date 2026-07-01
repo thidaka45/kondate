@@ -1,3 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F5233">
+<title>きょうのごはん</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="きょうのごはん">
+<style>
+:root {
+  --bg: #FAF6EE;
+  --surface: #FFFFFF;
+  --surface-soft: #F1F0E8;
+  --text-primary: #1F2A1F;
+  --text-secondary: #5F6B5C;
+  --text-muted: #8B9187;
+  --border: #E4E0D4;
+  --border-strong: #CFCABB;
+  --green-deep: #2F5233;
+  --green-mid: #5C8A5F;
+  --green-soft: #E6EFE2;
+  --green-soft-text: #2F5233;
+  --accent-amber: #E8A33D;
+  --accent-amber-soft: #FBEBD3;
+  --accent-amber-text: #8A5A16;
+  --danger: #C0503F;
+  --danger-soft: #F7E5E1;
+  --radius: 12px;
+  --radius-pill: 999px;
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", -apple-system, sans-serif;
+  padding-bottom: 76px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 20px 4px;
+}
+.date { font-size: 13px; color: var(--text-muted); margin: 0; }
+h1 { font-size: 20px; font-weight: 700; margin: 2px 0 0; color: var(--green-deep); }
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+}
+.icon-btn:hover { background: var(--surface-soft); }
+
+.arc-wrap { padding: 4px 24px 0; }
+.arc-svg { display: block; }
+.arc-times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -8px;
+  padding: 0 4px;
+}
+.arc-times span { font-size: 12px; color: var(--text-muted); }
+
+.meal-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.mtab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+.mtab-icon { font-size: 18px; }
+.mtab.active {
+  background: var(--green-soft);
+  border-color: var(--green-mid);
+  color: var(--green-soft-text);
+}
+
+.panel { padding: 0 20px 20px; }
+.label { font-size: 13px; color: var(--text-secondary); margin: 0 0 8px; font-weight: 500; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.tag {
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.tag.on {
+  background: var(--green-soft);
+  border-color: var(--green-mid);
+  color: var(--green-soft-text);
+  font-weight: 500;
+}
+
+.input-row { display: flex; gap: 8px; margin-bottom: 20px; }
+input[type="text"], input[type="password"] {
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 15px;
+  color: var(--text-primary);
+  width: 100%;
+}
+input:focus { outline: 2px solid var(--green-mid); outline-offset: 1px; }
+.input-row .icon-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.primary-btn {
+  width: 100%;
+  height: 46px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--green-deep);
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primary-btn:disabled { opacity: 0.6; cursor: default; }
+.primary-btn:active:not(:disabled) { transform: scale(0.98); }
+
+.results-list { display: flex; flex-direction: column; gap: 10px; }
+.recipe-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-soft);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-soft);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.recipe-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.image-placeholder-icon {
+  font-size: 28px;
+  color: var(--text-muted);
+}
+.image-loading .image-placeholder-icon {
+  animation: pulse-food 1.4s ease-in-out infinite;
+}
+.image-loaded .image-placeholder-icon { display: none; }
+.image-failed .image-placeholder-icon { opacity: 0.5; }
+@keyframes pulse-food {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+.recipe-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.recipe-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.recipe-name { font-size: 15px; font-weight: 700; margin: 0; }
+.time-badge {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-soft);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.recipe-ingredients {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+.link-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.link-chip {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface-soft);
+  border-radius: var(--radius-pill);
+  padding: 7px 10px;
+  text-decoration: none;
+}
+.link-chip:hover { background: var(--border); }
+
+.card-actions { display: flex; gap: 8px; }
+.secondary-btn {
+  flex: 1;
+  height: 36px;
+  font-size: 13px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.pick-btn {
+  flex: 1;
+  height: 36px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: 1px solid var(--green-mid);
+  background: var(--green-soft);
+  color: var(--green-soft-text);
+  cursor: pointer;
+}
+
+.error-text {
+  font-size: 13px;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 0;
+}
+
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.empty-hint { font-size: 13px; color: var(--text-muted); margin: 0; }
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+.history-item .h-meal { color: var(--text-muted); margin-right: 8px; }
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.nav-item span:first-child { font-size: 20px; }
+.nav-item.active { color: var(--green-deep); font-weight: 500; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 42, 31, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.modal-overlay[hidden] { display: none; }
+.modal-sheet {
+  background: var(--surface);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 20px 20px 0 0;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 16px; margin: 0; }
+.modal-body { padding: 16px 20px; overflow-y: auto; }
+.modal-body ul, .modal-body ol { margin: 0 0 16px; padding-left: 20px; }
+.modal-body li { font-size: 14px; line-height: 1.9; color: var(--text-primary); }
+.hint-text { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.modal-footer { padding: 12px 20px 20px; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14170F;
+    --surface: #1D2117;
+    --surface-soft: #262B1F;
+    --text-primary: #EDEFE7;
+    --text-secondary: #ABB2A2;
+    --text-muted: #7D8474;
+    --border: #2E3327;
+    --border-strong: #3C4232;
+    --green-soft: #253425;
+    --green-soft-text: #8FCB92;
+    --green-mid: #6FA173;
+    --accent-amber-soft: #3A2D14;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <p class="date" id="today-date"></p>
+    <h1>きょうのごはん</h1>
+  </div>
+  <button id="settings-btn" class="icon-btn" aria-label="設定">⚙</button>
+</header>
+
+<main>
+
+  <section class="arc-wrap" aria-label="時間帯を選択">
+    <svg viewBox="0 0 340 70" width="100%" height="70" class="arc-svg">
+      <path d="M 10 60 Q 170 -10 330 60" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="1 7" stroke-linecap="round"/>
+      <circle id="sun-dot" cx="40" cy="54" r="9" fill="var(--accent-amber)"/>
+    </svg>
+    <div class="arc-times">
+      <span>6:00</span><span>12:00</span><span>19:00</span>
+    </div>
+  </section>
+
+  <nav class="meal-tabs" id="meal-tabs">
+    <button class="mtab active" data-meal="0" data-label="朝ごはん">
+      <span class="mtab-icon">☕</span><span>朝</span>
+    </button>
+    <button class="mtab" data-meal="1" data-label="お昼ごはん">
+      <span class="mtab-icon">☀</span><span>昼</span>
+    </button>
+    <button class="mtab" data-meal="2" data-label="晩ごはん">
+      <span class="mtab-icon">🌙</span><span>夕</span>
+    </button>
+  </nav>
+
+  <section class="panel">
+    <p class="label">条件</p>
+    <div class="tags" id="tags">
+      <button class="tag" data-tag="時短">時短</button>
+      <button class="tag" data-tag="和食">和食</button>
+      <button class="tag" data-tag="洋食">洋食</button>
+      <button class="tag" data-tag="中華">中華</button>
+      <button class="tag" data-tag="余り物消費">余り物消費</button>
+    </div>
+
+    <p class="label">手持ちの食材</p>
+    <div class="input-row">
+      <input type="text" id="ingredients-input" placeholder="例: 豚肉, キャベツ, 卵">
+      <button id="mic-btn" class="icon-btn" aria-label="音声入力">🎤</button>
+    </div>
+
+    <button id="suggest-btn" class="primary-btn">
+      <span id="suggest-btn-text">献立を提案してもらう</span>
+    </button>
+  </section>
+
+  <section class="panel" id="results" hidden>
+    <p class="label" id="results-label"></p>
+    <div id="results-list" class="results-list"></div>
+  </section>
+
+  <section class="panel" id="error-panel" hidden>
+    <p class="error-text" id="error-text"></p>
+  </section>
+
+  <section class="panel" id="history-panel">
+    <p class="label">最近の履歴</p>
+    <div id="history-list" class="history-list">
+      <p class="empty-hint">まだ履歴がありません。献立を提案してもらうとここに残ります。</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom-nav">
+  <div class="nav-item active">
+    <span>🍳</span><span>献立</span>
+  </div>
+  <div class="nav-item" id="nav-shopping">
+    <span>🛒</span><span>買い物</span>
+  </div>
+  <div class="nav-item" id="nav-kakeibo">
+    <span>💰</span><span>家計簿</span>
+  </div>
+</nav>
+
+<div class="modal-overlay" id="recipe-modal" hidden>
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="icon-btn" id="modal-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-image-wrap image-loading" id="modal-image-wrap">
+        <span class="image-placeholder-icon">🍽</span>
+        <img class="recipe-image" id="modal-image" alt="" hidden>
+      </div>
+      <div class="link-row" id="modal-link-row">
+        <a class="link-chip" target="_blank" rel="noopener">🔍 画像で見る</a>
+        <a class="link-chip" target="_blank" rel="noopener">📖 クックパッドで見る</a>
+      </div>
+      <p class="label">材料</p>
+      <ul id="modal-ingredients"></ul>
+      <p class="label">作り方</p>
+      <ol id="modal-steps"></ol>
+    </div>
+    <div class="modal-footer">
+      <button class="primary-btn" id="modal-pick-btn">この献立にする</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settings-modal" hidden>
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2>設定</h2>
+      <button class="icon-btn" id="settings-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="label">Gemini API キー</p>
+      <input type="password" id="api-key-input" placeholder="APIキーを入力">
+      <p class="hint-text">キーはこの端末内にのみ保存され、外部には送信されません。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="primary-btn" id="settings-save-btn">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script>
 (function () {
   "use strict";
 
@@ -464,3 +969,7 @@
 
   document.addEventListener("DOMContentLoaded", init);
 })();
+
+</script>
+</body>
+</html>

@@ -104,6 +104,14 @@
       <button class="icon-btn" id="modal-close" aria-label="閉じる">✕</button>
     </div>
     <div class="modal-body">
+      <div class="modal-image-wrap image-loading" id="modal-image-wrap">
+        <span class="image-placeholder-icon">🍽</span>
+        <img class="recipe-image" id="modal-image" alt="" hidden>
+      </div>
+      <div class="link-row" id="modal-link-row">
+        <a class="link-chip" target="_blank" rel="noopener">🔍 画像で見る</a>
+        <a class="link-chip" target="_blank" rel="noopener">📖 クックパッドで見る</a>
+      </div>
       <p class="label">材料</p>
       <ul id="modal-ingredients"></ul>
       <p class="label">作り方</p>
