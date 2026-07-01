@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F5233">
+<title>きょうのごはん</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="きょうのごはん">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <p class="date" id="today-date"></p>
+    <h1>きょうのごはん</h1>
+  </div>
+  <button id="settings-btn" class="icon-btn" aria-label="設定">⚙</button>
+</header>
+
+<main>
+
+  <section class="arc-wrap" aria-label="時間帯を選択">
+    <svg viewBox="0 0 340 70" width="100%" height="70" class="arc-svg">
+      <path d="M 10 60 Q 170 -10 330 60" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="1 7" stroke-linecap="round"/>
+      <circle id="sun-dot" cx="40" cy="54" r="9" fill="var(--accent-amber)"/>
+    </svg>
+    <div class="arc-times">
+      <span>6:00</span><span>12:00</span><span>19:00</span>
+    </div>
+  </section>
+
+  <nav class="meal-tabs" id="meal-tabs">
+    <button class="mtab active" data-meal="0" data-label="朝ごはん">
+      <span class="mtab-icon">☕</span><span>朝</span>
+    </button>
+    <button class="mtab" data-meal="1" data-label="お昼ごはん">
+      <span class="mtab-icon">☀</span><span>昼</span>
+    </button>
+    <button class="mtab" data-meal="2" data-label="晩ごはん">
+      <span class="mtab-icon">🌙</span><span>夕</span>
+    </button>
+  </nav>
+
+  <section class="panel">
+    <p class="label">条件</p>
+    <div class="tags" id="tags">
+      <button class="tag" data-tag="時短">時短</button>
+      <button class="tag" data-tag="和食">和食</button>
+      <button class="tag" data-tag="洋食">洋食</button>
+      <button class="tag" data-tag="中華">中華</button>
+      <button class="tag" data-tag="余り物消費">余り物消費</button>
+    </div>
+
+    <p class="label">手持ちの食材</p>
+    <div class="input-row">
+      <input type="text" id="ingredients-input" placeholder="例: 豚肉, キャベツ, 卵">
+      <button id="mic-btn" class="icon-btn" aria-label="音声入力">🎤</button>
+    </div>
+
+    <button id="suggest-btn" class="primary-btn">
+      <span id="suggest-btn-text">献立を提案してもらう</span>
+    </button>
+  </section>
+
+  <section class="panel" id="results" hidden>
+    <p class="label" id="results-label"></p>
+    <div id="results-list" class="results-list"></div>
+  </section>
+
+  <section class="panel" id="error-panel" hidden>
+    <p class="error-text" id="error-text"></p>
+  </section>
+
+  <section class="panel" id="history-panel">
+    <p class="label">最近の履歴</p>
+    <div id="history-list" class="history-list">
+      <p class="empty-hint">まだ履歴がありません。献立を提案してもらうとここに残ります。</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom-nav">
+  <div class="nav-item active">
+    <span>🍳</span><span>献立</span>
+  </div>
+  <div class="nav-item" id="nav-shopping">
+    <span>🛒</span><span>買い物</span>
+  </div>
+  <div class="nav-item" id="nav-kakeibo">
+    <span>💰</span><span>家計簿</span>
+  </div>
+</nav>
+
+<div class="modal-overlay" id="recipe-modal" hidden>
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="icon-btn" id="modal-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="label">材料</p>
+      <ul id="modal-ingredients"></ul>
+      <p class="label">作り方</p>
+      <ol id="modal-steps"></ol>
+    </div>
+    <div class="modal-footer">
+      <button class="primary-btn" id="modal-pick-btn">この献立にする</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settings-modal" hidden>
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2>設定</h2>
+      <button class="icon-btn" id="settings-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="label">Gemini API キー</p>
+      <input type="password" id="api-key-input" placeholder="APIキーを入力">
+      <p class="hint-text">キーはこの端末内にのみ保存され、外部には送信されません。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="primary-btn" id="settings-save-btn">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

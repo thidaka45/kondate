@@ -1,0 +1,25 @@
+{
+  "name": "きょうのごはん - 献立提案",
+  "short_name": "きょうのごはん",
+  "description": "朝昼夕の献立をAIが提案するアプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FAF6EE",
+  "theme_color": "#2F5233",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
